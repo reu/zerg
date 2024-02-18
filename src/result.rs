@@ -50,12 +50,7 @@ impl BenchmarkResult {
     pub fn percentiles(&self) -> Percentiles {
         let tdigest = TDigest::new_with_size(100);
         Percentiles(
-            tdigest.merge_unsorted(
-                self.timings
-                    .iter()
-                    .map(|dur| dur.as_micros() as f64)
-                    .collect(),
-            ),
+            tdigest.merge_unsorted(self.timings.iter().map(|dur| dur.as_secs_f64()).collect()),
         )
     }
 }
@@ -63,8 +58,8 @@ impl BenchmarkResult {
 pub struct Percentiles(TDigest);
 
 impl Percentiles {
-    pub fn percentile(&self, q: f64) -> f64 {
-        self.0.estimate_quantile(q)
+    pub fn percentile(&self, q: f64) -> Duration {
+        Duration::from_secs_f64(self.0.estimate_quantile(q))
     }
 }
 
@@ -100,10 +95,10 @@ impl Display for BenchmarkResult {
         }
 
         let percentiles = self.percentiles();
-        let p99 = percentiles.percentile(0.99) / 1000.0;
-        let p90 = percentiles.percentile(0.90) / 1000.0;
-        let p75 = percentiles.percentile(0.75) / 1000.0;
-        let p50 = percentiles.percentile(0.50) / 1000.0;
+        let p99 = percentiles.percentile(0.99).as_millis() as f64;
+        let p90 = percentiles.percentile(0.90).as_millis() as f64;
+        let p75 = percentiles.percentile(0.75).as_millis() as f64;
+        let p50 = percentiles.percentile(0.50).as_millis() as f64;
 
         writeln!(f, "P99:       {p99:.2}ms")?;
         writeln!(f, "P90:       {p90:.2}ms")?;
