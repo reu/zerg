@@ -43,6 +43,25 @@ impl BenchmarkResult {
         self.elapsed
     }
 
+    pub fn average_time(&self) -> Option<Duration> {
+        match self.total_request_count() {
+            0 => None,
+            n => Some(self.timings().sum::<Duration>() / n as u32),
+        }
+    }
+
+    pub fn standard_deviation(&self) -> Option<Duration> {
+        let avg = self.average_time()?.as_secs_f64();
+        let var = self
+            .timings()
+            .map(|time| time.as_secs_f64())
+            .map(|time| avg - time)
+            .map(|val| val * val)
+            .sum::<f64>()
+            / self.total_request_count() as f64;
+        Some(Duration::from_secs_f64(var.sqrt()))
+    }
+
     pub fn timings(&self) -> impl Iterator<Item = Duration> + '_ {
         self.timings.iter().copied()
     }
