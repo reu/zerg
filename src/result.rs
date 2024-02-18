@@ -7,7 +7,7 @@ use std::{
 
 use tdigest::TDigest;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct BenchmarkResult {
     pub(crate) success: usize,
     pub(crate) http_error: usize,
