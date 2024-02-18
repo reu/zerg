@@ -221,9 +221,11 @@ impl SwarmBuilder {
     }
 }
 
+pub extern crate serde_json;
+
 #[macro_export]
 macro_rules! json {
     ($some_json:tt) => {
-        serde_json::to_vec(&serde_json::json!($some_json)).unwrap()
+        $crate::serde_json::to_vec(&$crate::serde_json::json!($some_json)).unwrap()
     };
 }
